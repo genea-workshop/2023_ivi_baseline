@@ -18,25 +18,40 @@ import argparse
 from tool import *
 
 
-def load_metadata(metadata):
+def load_metadata(metadata, participant):
+    assert participant in ("main-agent", "interloctr"), "`participant` must be either 'main-agent' or 'interloctr'"
+
     metadict_byfname = {}
     metadict_byindex = {}
-    spks = []
+    speaker_ids = []
     finger_info = []
     with open(metadata, "r") as f:
-        for i, line in enumerate(f.readlines()):
-            fname, has_finger, speaker_id = line.strip().split(",")
-            has_finger = True if has_finger == "finger_incl" else False
-            speaker_id = int(speaker_id)
+        # NOTE: The first line contains the csv header so we skip it
+        for i, line in enumerate(f.readlines()[1:]):
+            (
+                fname,
+                main_speaker_id,
+                main_has_finger,
+                ilocutor_speaker_id,
+                ilocutor_has_finger,
+            ) = line.strip().split(",")
+
+            if participant == "main-agent":
+                has_finger = (main_has_finger == "finger_incl")
+                speaker_id = int(main_speaker_id) - 1
+            else:
+                has_finger = (ilocutor_has_finger == "finger_incl")
+                speaker_id = int(ilocutor_speaker_id) - 1
+            
             finger_info.append(has_finger)
-            spks.append(speaker_id)
+            speaker_ids.append(speaker_id)
 
-            metadict_byindex[i] = has_finger, speaker_id - 1
-            metadict_byfname[fname] = has_finger, speaker_id - 1
+            metadict_byindex[i] = has_finger, speaker_id
+            metadict_byfname[fname + f"_{participant}"] = has_finger, speaker_id
 
-    spks = np.array(spks)
+    speaker_ids = np.array(speaker_ids)
     finger_info = np.array(finger_info)
-    num_speakers = np.unique(spks).shape[0]
+    num_speakers = np.unique(speaker_ids).shape[0]
     # assert num_speakers == spks.max(), "Error speaker info!"
     # print("Number of speakers: ", num_speakers)
     # print("Has Finger Ratio:", np.mean(finger_info))
@@ -147,11 +162,17 @@ def find_timestamp_from_timings(timestamp, timings):
     return output
 
 
-def prepare_h5_unclipped(metadata, h5file):
-    num_speakers, metadict_byfname, metadict_byindex = load_metadata(metadata)
-    word2vector = load_wordvectors(fname="crawl-300d-2M.vec")
+def prepare_h5_unclipped(dataroot, h5file, participant, word2vector):
+    assert participant in ("main-agent", "interloctr"), "`participant` must be either 'main-agent' or 'interloctr'"    
+    
+    metadata_path = os.path.join(dataroot, "metadata.csv")
+    num_speakers, metadict_byfname, metadict_byindex = load_metadata(metadata_path, participant)
     filenames = sorted(metadict_byfname.keys())
 
+    wavdir = os.path.join(dataroot, participant, "wav")
+    tsvdir = os.path.join(dataroot, participant, "tsv")
+    bvhdir = os.path.join(dataroot, participant, "bvh")
+    
     with h5py.File(h5file, "w") as h5:
         for i, filename in enumerate(filenames):
             print("{}/{} {}              ".format(i + 1, len(filenames), filename), end="\r")
@@ -294,32 +315,29 @@ def prepare_h5_unclipped_test(metadata, h5file="tst_v1.h5"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', "--dataset_path", type=str, default="dataset_v1")
+    parser.add_argument("-d", "--dataset_path", type=str, default="genea2023_dataset")
     args = parser.parse_args()
+
+    word2vector = load_wordvectors(fname="crawl-300d-2M.vec")
 
     dataset_type = "trn"
     dataroot = os.path.join(args.dataset_path, dataset_type)
     wavdir = os.path.join(dataroot, "wav")
     tsvdir = os.path.join(dataroot, "tsv")
     bvhdir = os.path.join(dataroot, "bvh")
-    metadata_path = os.path.join(dataroot, "{}_2022_v1_metadata.csv".format(dataset_type))
-    prepare_h5_unclipped(metadata_path, "{}_v1.h5".format(dataset_type))
+    
+    prepare_h5_unclipped(dataroot, f"{dataset_type}_main-agent_v1.h5", "main-agent", word2vector)
+    prepare_h5_unclipped(dataroot, f"{dataset_type}_interloctr_v1.h5", "interloctr", word2vector)
 
     dataset_type = "val"
     dataroot = os.path.join(args.dataset_path, dataset_type)
-    wavdir = os.path.join(dataroot, "wav")
-    tsvdir = os.path.join(dataroot, "tsv")
-    bvhdir = os.path.join(dataroot, "bvh")
-    metadata_path = os.path.join(dataroot, "{}_metadata.csv".format(dataset_type))
-    prepare_h5_unclipped(metadata_path, "{}_v1.h5".format(dataset_type))
+    prepare_h5_unclipped(dataroot, f"{dataset_type}_main-agent_v1.h5", "main-agent", word2vector)
+    prepare_h5_unclipped(dataroot, f"{dataset_type}_interloctr_v1.h5", "interloctr", word2vector)
 
-    dataset_type = "tst"
-    dataroot = os.path.join(args.dataset_path, dataset_type)
-    wavdir = os.path.join(dataroot, "wav")
-    tsvdir = os.path.join(dataroot, "tsv")
-    bvhdir = os.path.join(dataroot, "bvh")
-    metadata_path = os.path.join(dataroot, "{}_metadata.csv".format(dataset_type))
-    prepare_h5_unclipped_test(metadata_path, "{}_v1.h5".format(dataset_type))
-
-
-
+    # dataset_type = "tst"
+    # dataroot = os.path.join(args.dataset_path, dataset_type)
+    # wavdir = os.path.join(dataroot, "wav")
+    # tsvdir = os.path.join(dataroot, "tsv")
+    # bvhdir = os.path.join(dataroot, "bvh")
+    # metadata_path = os.path.join(dataroot, "metadata.csv")
+    # prepare_h5_unclipped_test(metadata_path, "{}_v1.h5".format(dataset_type))

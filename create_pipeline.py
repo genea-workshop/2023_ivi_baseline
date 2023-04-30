@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from pymo.parsers import *
 from pymo.preprocessing import *
@@ -9,8 +10,8 @@ import joblib as jl
 
 if __name__ == "__main__":
     parser = BVHParser()
-    # parsed_data = parser.parse("dataset_v1/trn/bvh/trn_2022_v1_064.bvh")
-    parsed_data = parser.parse("dataset_v1/trn/bvh/trn_2022_v1_002.bvh")
+    data_dir = "/genea2023_dataset"
+    parsed_example = parser.parse(os.path.join(data_dir, "trn/main-agent/bvh/trn_2023_v0_000_main-agent.bvh"))
 
     mexp_full = Pipeline([
         ('jtsel', JointSelector(["b_root", "b_spine0", "b_spine1", "b_spine2", "b_spine3", "b_neck0", "b_head", "b_r_shoulder",
@@ -26,7 +27,7 @@ if __name__ == "__main__":
         ('np', Numpyfier()),
     ])
     
-    fullexpdata = mexp_full.fit_transform([parsed_data])[0]
+    fullexpdata = mexp_full.fit_transform([parsed_example])[0]
 
     mexp_upperbody = Pipeline([
         ('jtsel', JointSelector(["b_root", "b_spine0", "b_spine1", "b_spine2", "b_spine3", "b_neck0", "b_head", "b_r_shoulder",
@@ -45,7 +46,7 @@ if __name__ == "__main__":
         ('cnst', ConstantsRemover_()),
         ('np', Numpyfier()),
     ])
-    upperexpdata = mexp_upperbody.fit_transform([parsed_data])[0]
+    upperexpdata = mexp_upperbody.fit_transform([parsed_example])[0]
     
     jl.dump(mexp_full, "pipeline_expmap_full.sav")
     jl.dump(mexp_upperbody, "pipeline_expmap_upper.sav")

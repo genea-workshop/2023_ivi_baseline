@@ -1,8 +1,10 @@
 import h5py
 import numpy as np
 
-
-h5 = h5py.File("trn_v1.h5", "r")
+# NOTE: Since the data is augmented in such a way that every recording is
+#       present twice (once as the main agent, # and once as the interlocutor),
+#       it's enough to look at the main-agent half for audio normalisation
+h5 = h5py.File("trn_main-agent_v1.h5", "r")
 
 mfcc = np.concatenate([h5[key]['audio']['mfcc'][:] for key in h5.keys()])
 mel = np.concatenate([h5[key]['audio']['melspectrogram'][:] for key in h5.keys()])

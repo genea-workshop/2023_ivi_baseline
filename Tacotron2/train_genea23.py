@@ -11,14 +11,40 @@ from common.hparams_dyadic import create_hparams
 from torch.utils.data import DataLoader
 from common.loss_function import Tacotron2Loss
 
+def load_h5(h5_data, motion_dim, audio_stats):
+    """Return the data for each modality in the given h5 file as separate lists."""
+    h5_data_len = len(h5_data.keys())
+    ### Normalized audio feature
+    mel        = [(h5_data[str(i)]["audio"]["melspectrogram"][:] - audio_stats["mel_mean"]) / audio_stats["mel_std"]
+                    for i in range(h5_data_len)]
+    mfcc       = [np.zeros_like((h5_data[str(i)]["audio"]["mfcc"][:] - audio_stats["mfcc_mean"]) / audio_stats["mfcc_std"])
+                    for i in range(h5_data_len)]
+    prosody    = [np.zeros_like((h5_data[str(i)]["audio"]["prosody"][:] - audio_stats["prosody_mean"]) / audio_stats["prosody_std"])
+                    for i in range(h5_data_len)]
+    
+    speaker_id = [h5_data[str(i)]["speaker_id"][:] for i in range(h5_data_len)]
+    text       = [h5_data[str(i)]["text"][:] for i in range(h5_data_len)]
+    if motion_dim == 57:
+        motion = [h5_data[str(i)]["motion"]["expmap_upper"][:, :]
+                    for i in range(h5_data_len)]
+    else:
+        motion = [h5_data[str(i)]["motion"]["expmap_full"][:, :]
+                    for i in range(h5_data_len)]
+    
+    return mel, mfcc, prosody, speaker_id, text, motion
 
 class SpeechGestureDataset_Genea22(torch.utils.data.Dataset):
-    def __init__(self, trn_h5file=None, val_h5file=None, sequence_length=300, npy_root="..", motion_dim=78,
-                 dyadic_pairs="../dyadic_pairs.txt"):
-        if trn_h5file is None and val_h5file is None:
+    def __init__(self, trn_h5file_main=None, trn_h5file_iloctr=None, 
+                       val_h5file_main=None, val_h5file_iloctr=None,
+                       sequence_length=300, npy_root="..", motion_dim=78):
+        
+        if trn_h5file_main is None and val_h5file_main is None:
             print("Both h5 files are not specified.")
             exit()
 
+        assert (trn_h5file_main is None) == (trn_h5file_iloctr is None), "one side of the trn dataset is missing"
+        assert (val_h5file_main is None) == (val_h5file_iloctr is None), "one side of the val dataset is missing"
+        
         mel_mean = np.load(os.path.join(npy_root, "mel_mean.npy"))
         mel_std = np.load(os.path.join(npy_root, "mel_std.npy"))
         mfcc_mean = np.load(os.path.join(npy_root, "mfcc_mean.npy"))
@@ -26,89 +52,68 @@ class SpeechGestureDataset_Genea22(torch.utils.data.Dataset):
         prosody_mean = np.load(os.path.join(npy_root, "prosody_mean.npy"))
         prosody_std = np.load(os.path.join(npy_root, "prosody_std.npy"))
 
-        trn_pair_dict = {}
-        val_pair_dict = {}
-        with open(dyadic_pairs, "r") as f:
-            lines = f.readlines()
-            for line in lines:
-                line = line.strip().split(",")
-                if line[0] == "trn":
-                    trn_pair_dict[int(line[1])] = int(line[2])
-                if line[0] == "val":
-                    val_pair_dict[int(line[1])] = int(line[2])
-
+        audio_stats_dict = {
+            "mel_mean" : mel_mean,
+            "mel_std" : mel_std,
+            "mfcc_mean" : mfcc_mean,
+            "mfcc_std" : mfcc_std,
+            "prosody_mean" : prosody_mean,
+            "prosody_std" : prosody_std
+        }
+        
         self.mel, self.mfcc, self.prosody, self.speaker_id, self.text, self.motion = [], [], [], [], [], []
         self.mel_interlocutor, self.mfcc_interlocutor, self.prosody_interlocutor, \
             self.speaker_id_interlocutor, self.text_interlocutor, self.motion_interlocutor = [], [], [], [], [], []
 
 
-        if trn_h5file is not None:
-            self.h5 = h5py.File(trn_h5file, "r")
-            self.len = len(self.h5.keys())
-
-            ### Normalized audio feature
-            mel_trn = [(self.h5[str(i)]["audio"]["melspectrogram"][:] - mel_mean) / mel_std
-                        for i in range(self.len)]
-            mfcc_trn = [np.zeros_like((self.h5[str(i)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std)
-                         for i in range(self.len)]
-            prosody_trn = [np.zeros_like((self.h5[str(i)]["audio"]["prosody"][:] - prosody_mean) / prosody_std)
-                            for i in range(self.len)]
-
-            speaker_id_trn = [self.h5[str(i)]["speaker_id"][:] for i in range(len(self.h5.keys()))]
-            text_trn = [self.h5[str(i)]["text"][:] for i in range(len(self.h5.keys()))]
-            if motion_dim == 57:
-                motion_trn = [self.h5[str(i)]["motion"]["expmap_upper"][:, :]
-                            for i in range(len(self.h5.keys()))]
-            else:
-                motion_trn = [self.h5[str(i)]["motion"]["expmap_full"][:, :]
-                            for i in range(len(self.h5.keys()))]
-            self.mel += mel_trn
-            self.mfcc += mfcc_trn
-            self.prosody += prosody_trn
-            self.speaker_id += speaker_id_trn
-            self.text += text_trn
-            self.motion += motion_trn
-            self.mel_interlocutor += [mel_trn[trn_pair_dict[i]] for i in range(self.len)]
-            self.mfcc_interlocutor += [mfcc_trn[trn_pair_dict[i]] for i in range(self.len)]
-            self.prosody_interlocutor += [prosody_trn[trn_pair_dict[i]] for i in range(self.len)]
-            self.speaker_id_interlocutor += [speaker_id_trn[trn_pair_dict[i]] for i in range(self.len)]
-            self.text_interlocutor += [text_trn[trn_pair_dict[i]] for i in range(self.len)]
-            self.motion_interlocutor += [motion_trn[trn_pair_dict[i]] for i in range(self.len)]
-            self.h5.close()
-
-        if val_h5file is not None:
-            self.h5 = h5py.File(val_h5file, "r")
-            self.len = len(self.h5.keys())
-
-            ### Normalized audio feature
-            mel_val = [(self.h5[str(i)]["audio"]["melspectrogram"][:] - mel_mean) / mel_std
-                        for i in range(self.len)]
-            mfcc_val = [np.zeros_like((self.h5[str(i)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std)
-                         for i in range(self.len)]
-            prosody_val = [np.zeros_like((self.h5[str(i)]["audio"]["prosody"][:] - prosody_mean) / prosody_std)
-                            for i in range(self.len)]
-
-            speaker_id_val = [self.h5[str(i)]["speaker_id"][:] for i in range(len(self.h5.keys()))]
-            text_val = [self.h5[str(i)]["text"][:] for i in range(len(self.h5.keys()))]
-            if motion_dim == 57:
-                motion_val = [self.h5[str(i)]["motion"]["expmap_upper"][:, :]
-                            for i in range(len(self.h5.keys()))]
-            else:
-                motion_val = [self.h5[str(i)]["motion"]["expmap_full"][:, :]
-                            for i in range(len(self.h5.keys()))]
-            self.mel += mel_val
-            self.mfcc += mfcc_val
-            self.prosody += prosody_val
-            self.speaker_id += speaker_id_val
-            self.text += text_val
-            self.motion += motion_val
-            self.mel_interlocutor += [mel_val[val_pair_dict[i]] for i in range(self.len)]
-            self.mfcc_interlocutor += [mfcc_val[val_pair_dict[i]] for i in range(self.len)]
-            self.prosody_interlocutor += [prosody_val[val_pair_dict[i]] for i in range(self.len)]
-            self.speaker_id_interlocutor += [speaker_id_val[val_pair_dict[i]] for i in range(self.len)]
-            self.text_interlocutor += [text_val[val_pair_dict[i]] for i in range(self.len)]
-            self.motion_interlocutor += [motion_val[val_pair_dict[i]] for i in range(self.len)]
-            self.h5.close()
+        if trn_h5file_main is not None:
+            self.h5_main = h5py.File(trn_h5file_main, "r")
+            self.h5_iloc = h5py.File(trn_h5file_iloctr, "r")
+            
+            assert len(self.h5_main.keys()) == len(self.h5_iloc.keys()), "main-agent and interlocutor trn data have different number of files"
+            self.len = len(self.h5_main.keys())            
+            mel_main, mfcc_main, prosody_main, speaker_id_main, text_main, motion_main = load_h5(self.h5_main, motion_dim, audio_stats_dict)
+            self.mel += mel_main
+            self.mfcc += mfcc_main
+            self.prosody += prosody_main
+            self.speaker_id += speaker_id_main
+            self.text += text_main
+            self.motion += motion_main
+            
+            mel_iloc, mfcc_iloc, prosody_iloc, speaker_id_iloc, text_iloc, motion_iloc = load_h5(self.h5_iloc, motion_dim, audio_stats_dict)
+            self.mel_interlocutor += mel_iloc
+            self.mfcc_interlocutor += mfcc_iloc
+            self.prosody_interlocutor += prosody_iloc
+            self.speaker_id_interlocutor += speaker_id_iloc
+            self.text_interlocutor += text_iloc
+            self.motion_interlocutor += motion_iloc
+            
+            self.h5_main.close()
+            self.h5_iloc.close()
+            
+        if val_h5file_main is not None:
+            self.h5_main = h5py.File(val_h5file_main, "r")
+            self.h5_iloc = h5py.File(val_h5file_iloctr, "r")            
+            assert len(self.h5_main.keys()) == len(self.h5_iloc.keys()), "main-agent and interlocutor val data have different number of files"
+            self.len = len(self.h5_main.keys())            
+            mel_main, mfcc_main, prosody_main, speaker_id_main, text_main, motion_main = load_h5(self.h5_main, motion_dim, audio_stats_dict)
+            self.mel += mel_main
+            self.mfcc += mfcc_main
+            self.prosody += prosody_main
+            self.speaker_id += speaker_id_main
+            self.text += text_main
+            self.motion += motion_main
+            
+            mel_iloc, mfcc_iloc, prosody_iloc, speaker_id_iloc, text_iloc, motion_iloc = load_h5(self.h5_iloc, motion_dim, audio_stats_dict)
+            self.mel_interlocutor += mel_iloc
+            self.mfcc_interlocutor += mfcc_iloc
+            self.prosody_interlocutor += prosody_iloc
+            self.speaker_id_interlocutor += speaker_id_iloc
+            self.text_interlocutor += text_iloc
+            self.motion_interlocutor += motion_iloc
+            
+            self.h5_main.close()
+            self.h5_iloc.close()
 
         self.cropped_lengths = [min(self.mel[i].shape[0], self.mel_interlocutor[i].shape[0]) for i in range(len(self.mel))]
 
@@ -229,8 +234,15 @@ class SequentialSampler(torch.utils.data.Sampler):
 def prepare_dataloaders(hparams):
     # Get data, data loaders and collate function ready
     print("Loading dataset into memory ...")
-    dataset = SpeechGestureDataset_Genea22("../trn_v1.h5", "../val_v1.h5", motion_dim=hparams.n_acoustic_feat_dims)
-    val_dataset = SpeechGestureDataset_Genea22_ValSequence(val_h5file="../val_v1.h5", motion_dim=hparams.n_acoustic_feat_dims)
+    dataset = SpeechGestureDataset_Genea22(
+                    "../trn_main-agent_v1.h5", "../trn_interloctr_v1.h5", 
+                    "../val_main-agent_v1.h5", "../val_interloctr_v1.h5", 
+                    motion_dim=hparams.n_acoustic_feat_dims)
+    
+    val_dataset = SpeechGestureDataset_Genea22_ValSequence(
+                    val_h5file_main="../val_main-agent_v1.h5", 
+                    val_h5file_iloctr="../val_interloctr_v1.h5", 
+                    motion_dim=hparams.n_acoustic_feat_dims)
 
     train_loader = DataLoader(dataset, num_workers=0,
                               sampler=RandomSampler(0, len(dataset)),
