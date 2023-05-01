@@ -33,7 +33,7 @@ def load_h5(h5_data, motion_dim, audio_stats):
     
     return mel, mfcc, prosody, speaker_id, text, motion
 
-class SpeechGestureDataset_Genea22(torch.utils.data.Dataset):
+class SpeechGestureDataset_Dyadic(torch.utils.data.Dataset):
     def __init__(self, trn_h5file_main=None, trn_h5file_iloctr=None, 
                        val_h5file_main=None, val_h5file_iloctr=None,
                        sequence_length=300, npy_root="..", motion_dim=78):
@@ -170,7 +170,7 @@ class SpeechGestureDataset_Genea22(torch.utils.data.Dataset):
         return x, length, gesture, gate, length
 
 
-class SpeechGestureDataset_Genea22_ValSequence(SpeechGestureDataset_Genea22):
+class SpeechGestureDataset_Dyadic_ValSequence(SpeechGestureDataset_Dyadic):
     def __getitem__(self, idx):
         # total_frame_len = self.mel[idx].shape[0]
         total_frame_len = self.cropped_lengths[idx]
@@ -234,12 +234,12 @@ class SequentialSampler(torch.utils.data.Sampler):
 def prepare_dataloaders(hparams):
     # Get data, data loaders and collate function ready
     print("Loading dataset into memory ...")
-    dataset = SpeechGestureDataset_Genea22(
+    dataset = SpeechGestureDataset_Dyadic(
                     "../trn_main-agent_v1.h5", "../trn_interloctr_v1.h5", 
                     "../val_main-agent_v1.h5", "../val_interloctr_v1.h5", 
                     motion_dim=hparams.n_acoustic_feat_dims)
     
-    val_dataset = SpeechGestureDataset_Genea22_ValSequence(
+    val_dataset = SpeechGestureDataset_Dyadic_ValSequence(
                     val_h5file_main="../val_main-agent_v1.h5", 
                     val_h5file_iloctr="../val_interloctr_v1.h5", 
                     motion_dim=hparams.n_acoustic_feat_dims)

@@ -15,9 +15,9 @@ def create_hparams(**kwargs):
         "fp16_run": False,
         "cudnn_enabled": True,
         "cudnn_benchmark": False,
-        "output_directory": "fullbody",  # Directory to save checkpoints.
+        "output_directory": "monadic ",  # Directory to save checkpoints.
         "log_directory": 'log',
-        "checkpoint_path": 'fullbody/ckpt/checkpoint_21000.pt',
+        "checkpoint_path": '',
         "warm_start": False,
         "n_gpus": 1,  # Number of GPUs
         "device": 0,

@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from common.loss_function import Tacotron2Loss
 
 
-class SpeechGestureDataset_Genea22(torch.utils.data.Dataset):
+class SpeechGestureDataset_Monadic(torch.utils.data.Dataset):
     def __init__(self, h5file1, h5file2=None, sequence_length=300, npy_root="..", motion_dim=78):
         self.h5 = h5py.File(h5file1, "r")
         self.len = len(self.h5.keys())
@@ -97,7 +97,7 @@ class SpeechGestureDataset_Genea22(torch.utils.data.Dataset):
         return textaudio, length, gesture, gate, length
 
 
-class SpeechGestureDataset_Genea22_ValSequence(SpeechGestureDataset_Genea22):
+class SpeechGestureDataset_Monadic_ValSequence(SpeechGestureDataset_Monadic):
     def __getitem__(self, idx):
         total_frame_len = self.mel[idx].shape[0]
         mel = self.mel[idx][:]
@@ -142,8 +142,8 @@ class SequentialSampler(torch.utils.data.Sampler):
 def prepare_dataloaders(hparams):
     # Get data, data loaders and collate function ready
     print("Loading dataset into memory ...")
-    dataset = SpeechGestureDataset_Genea22("../trn_v1.h5", "../val_v1.h5", motion_dim=hparams.n_acoustic_feat_dims)
-    val_dataset = SpeechGestureDataset_Genea22_ValSequence("../val_v1.h5", motion_dim=hparams.n_acoustic_feat_dims)
+    dataset = SpeechGestureDataset_Monadic("../trn_main-agent_v1.h5", "../val_main-agent_v1.h5", motion_dim=hparams.n_acoustic_feat_dims)
+    val_dataset = SpeechGestureDataset_Monadic_ValSequence("../val_main-agent_v1.h5", motion_dim=hparams.n_acoustic_feat_dims)
 
     train_loader = DataLoader(dataset, num_workers=0,
                               sampler=RandomSampler(0, len(dataset)),
