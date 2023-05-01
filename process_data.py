@@ -244,7 +244,7 @@ def prepare_h5_unclipped(dataroot, h5file, participant, word2vector):
     return
 
 
-def prepare_h5_unclipped_test(metadata, h5file="tst_v1.h5"):
+def prepare_h5_unclipped_test(metadata, h5file="tst_v0.h5"):
     num_speakers, metadict_byfname, metadict_byindex = load_metadata(metadata)
     word2vector = load_wordvectors(fname="crawl-300d-2M.vec")
     filenames = sorted(metadict_byfname.keys())
@@ -326,18 +326,14 @@ if __name__ == "__main__":
     tsvdir = os.path.join(dataroot, "tsv")
     bvhdir = os.path.join(dataroot, "bvh")
     
-    prepare_h5_unclipped(dataroot, f"{dataset_type}_main-agent_v1.h5", "main-agent", word2vector)
-    prepare_h5_unclipped(dataroot, f"{dataset_type}_interloctr_v1.h5", "interloctr", word2vector)
+    prepare_h5_unclipped(dataroot, f"{dataset_type}_main-agent_v0.h5", "main-agent", word2vector)
+    prepare_h5_unclipped(dataroot, f"{dataset_type}_interloctr_v0.h5", "interloctr", word2vector)
 
     dataset_type = "val"
     dataroot = os.path.join(args.dataset_path, dataset_type)
-    prepare_h5_unclipped(dataroot, f"{dataset_type}_main-agent_v1.h5", "main-agent", word2vector)
-    prepare_h5_unclipped(dataroot, f"{dataset_type}_interloctr_v1.h5", "interloctr", word2vector)
+    prepare_h5_unclipped(dataroot, f"{dataset_type}_main-agent_v0.h5", "main-agent", word2vector)
+    prepare_h5_unclipped(dataroot, f"{dataset_type}_interloctr_v0.h5", "interloctr", word2vector)
 
     # dataset_type = "tst"
     # dataroot = os.path.join(args.dataset_path, dataset_type)
-    # wavdir = os.path.join(dataroot, "wav")
-    # tsvdir = os.path.join(dataroot, "tsv")
-    # bvhdir = os.path.join(dataroot, "bvh")
-    # metadata_path = os.path.join(dataroot, "metadata.csv")
-    # prepare_h5_unclipped_test(metadata_path, "{}_v1.h5".format(dataset_type))
+    # prepare_h5_unclipped_test(dataroot, f"{dataset_type}_interloctr_v0.h5", "interloctr", word2vector)
