@@ -1,5 +1,5 @@
-# Tacotron2-SpeechGesture
-This is an official baseline for the GENEA Challenge 2023 based on the [paper](https://openreview.net/forum?id=gMTaia--AB2) **"The IVI Lab entry to the GENEA Challenge 2022 – A Tacotron2 Based Method for Co-Speech Gesture Generation With Locality-Constraint Attention Mechanism."** 
+# GENEA 2023 baselines
+In this repository, we provide example models for the 2023 GENEA challenge. The first (monadic) model is only trained on the main agent's own speech, while the second (dyadic) model also considers the interlocutor's speech and movements as its conditioning input. The models are based on the [paper](https://openreview.net/forum?id=gMTaia--AB2) *"The IVI Lab entry to the GENEA Challenge 2022 – A Tacotron2 Based Method for Co-Speech Gesture Generation With Locality-Constraint Attention Mechanism"*.
 
 The implementation is kindly provided by [Che-jui Chang](https://sites.google.com/view/chejuichang/) from Rutgers University. If you use this repository in your work, please cite their paper using the following `.bib` entry:
 
@@ -12,8 +12,6 @@ The implementation is kindly provided by [Che-jui Chang](https://sites.google.co
   year={2022}
 }
 ```
-
-
 ## Environment
 To install the required libraries, activate your python environment and use the following command:
 ```
