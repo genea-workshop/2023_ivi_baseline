@@ -64,8 +64,8 @@ h5 = h5py.File(args.h5file, "r")
 for index in tqdm(range(len(h5.keys()))):
 	### Load input
 	mel = torch.FloatTensor((h5[str(index)]["audio"]["melspectrogram"][:] - mel_mean) / mel_std)
-	mfcc = torch.FloatTensor(np.zeros_like((h5[str(index)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std))
-	prosody = torch.FloatTensor(np.zeros_like((h5[str(index)]["audio"]["prosody"][:] - prosody_mean) / prosody_std))
+	mfcc = torch.FloatTensor((h5[str(index)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std)
+	prosody = torch.FloatTensor((h5[str(index)]["audio"]["prosody"][:] - prosody_mean) / prosody_std)
 	text = torch.FloatTensor(h5[str(index)]["text"][:])
 
 	speaker = torch.zeros([mel.shape[0], 17])

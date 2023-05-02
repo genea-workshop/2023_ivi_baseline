@@ -26,9 +26,9 @@ class SpeechGestureDataset_Monadic(torch.utils.data.Dataset):
         ### Normalized audio feature
         self.mel = [(self.h5[str(i)]["audio"]["melspectrogram"][:] - mel_mean) / mel_std
                     for i in range(self.len)]
-        self.mfcc = [np.zeros_like((self.h5[str(i)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std)
+        self.mfcc = (self.h5[str(i)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std
                      for i in range(self.len)]
-        self.prosody = [np.zeros_like((self.h5[str(i)]["audio"]["prosody"][:] - prosody_mean) / prosody_std)
+        self.prosody = (self.h5[str(i)]["audio"]["prosody"][:] - prosody_mean) / prosody_std
                         for i in range(self.len)]
 
         self.speaker_id = [self.h5[str(i)]["speaker_id"][:] for i in range(len(self.h5.keys()))]
@@ -48,9 +48,9 @@ class SpeechGestureDataset_Monadic(torch.utils.data.Dataset):
             ### Normalized audio feature
             self.mel += [(self.h5[str(i)]["audio"]["melspectrogram"][:] - mel_mean) / mel_std
                         for i in range(self.len)]
-            self.mfcc += [np.zeros_like((self.h5[str(i)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std)
+            self.mfcc += [(self.h5[str(i)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std
                          for i in range(self.len)]
-            self.prosody += [np.zeros_like((self.h5[str(i)]["audio"]["prosody"][:] - prosody_mean) / prosody_std)
+            self.prosody += [(self.h5[str(i)]["audio"]["prosody"][:] - prosody_mean) / prosody_std
                             for i in range(self.len)]
 
             self.speaker_id += [self.h5[str(i)]["speaker_id"][:] for i in range(len(self.h5.keys()))]

@@ -17,9 +17,9 @@ def load_h5(h5_data, motion_dim, audio_stats):
     ### Normalized audio feature
     mel        = [(h5_data[str(i)]["audio"]["melspectrogram"][:] - audio_stats["mel_mean"]) / audio_stats["mel_std"]
                     for i in range(h5_data_len)]
-    mfcc       = [np.zeros_like((h5_data[str(i)]["audio"]["mfcc"][:] - audio_stats["mfcc_mean"]) / audio_stats["mfcc_std"])
+    mfcc       = [(h5_data[str(i)]["audio"]["mfcc"][:] - audio_stats["mfcc_mean"]) / audio_stats["mfcc_std"]
                     for i in range(h5_data_len)]
-    prosody    = [np.zeros_like((h5_data[str(i)]["audio"]["prosody"][:] - audio_stats["prosody_mean"]) / audio_stats["prosody_std"])
+    prosody    = [(h5_data[str(i)]["audio"]["prosody"][:] - audio_stats["prosody_mean"]) / audio_stats["prosody_std"]
                     for i in range(h5_data_len)]
     
     speaker_id = [h5_data[str(i)]["speaker_id"][:] for i in range(h5_data_len)]
