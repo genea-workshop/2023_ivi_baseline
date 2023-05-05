@@ -50,7 +50,7 @@ The above script generates the following four h5 files under the project directo
 * `val_interloctr_v1.h5`
 * `val_main-agent_v1.h5`
 ---
-Calculate audio statistics based on `trn_v1.h5`:
+Calculate audio statistics based on the training set:
 ```
 python calculate_audio_statistics.py
 ```
