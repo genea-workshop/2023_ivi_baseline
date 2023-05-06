@@ -142,8 +142,8 @@ class SequentialSampler(torch.utils.data.Sampler):
 def prepare_dataloaders(hparams):
     # Get data, data loaders and collate function ready
     print("Loading dataset into memory ...")
-    dataset = SpeechGestureDataset_Monadic("../trn_main-agent_v1.h5", "../val_main-agent_v1.h5", motion_dim=hparams.n_acoustic_feat_dims)
-    val_dataset = SpeechGestureDataset_Monadic_ValSequence("../val_main-agent_v1.h5", motion_dim=hparams.n_acoustic_feat_dims)
+    dataset = SpeechGestureDataset_Monadic("../trn_main-agent_v0.h5", "../val_main-agent_v0.h5", motion_dim=hparams.n_acoustic_feat_dims)
+    val_dataset = SpeechGestureDataset_Monadic_ValSequence("../val_main-agent_v0.h5", motion_dim=hparams.n_acoustic_feat_dims)
 
     train_loader = DataLoader(dataset, num_workers=0,
                               sampler=RandomSampler(0, len(dataset)),
