@@ -198,7 +198,7 @@ def prepare_h5_unclipped(dataroot, h5file, participant, word2vector):
             g_data.create_dataset("has_finger", data=[hasfinger])
             g_data.create_dataset("speaker_id", data=[speaker_id])
 
-            g_audiodata.create_dataset("raw_audio", data=(audio*32768).astype(np.int16), dtype=np.int16)
+            # g_audiodata.create_dataset("raw_audio", data=(audio*32768).astype(np.int16), dtype=np.int16)
             g_audiodata.create_dataset("mfcc", data=mfcc, dtype=np.float32)
             g_audiodata.create_dataset("melspectrogram", data=melspec, dtype=np.float32)
             g_audiodata.create_dataset("prosody", data=prosody, dtype=np.float32)
@@ -268,7 +268,7 @@ def prepare_h5_unclipped_test(metadata, h5file="tst_v0.h5"):
             g_data.create_dataset("has_finger", data=[hasfinger])
             g_data.create_dataset("speaker_id", data=[speaker_id])
 
-            g_audiodata.create_dataset("raw_audio", data=(audio * 32768).astype(np.int16), dtype=np.int16)
+            # g_audiodata.create_dataset("raw_audio", data=(audio * 32768).astype(np.int16), dtype=np.int16)
             g_audiodata.create_dataset("mfcc", data=mfcc, dtype=np.float32)
             g_audiodata.create_dataset("melspectrogram", data=melspec, dtype=np.float32)
             g_audiodata.create_dataset("prosody", data=prosody, dtype=np.float32)
