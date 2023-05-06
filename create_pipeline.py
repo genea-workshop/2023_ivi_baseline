@@ -6,11 +6,16 @@ from pymo.viz_tools import *
 from pymo.writers import *
 from sklearn.pipeline import Pipeline
 import joblib as jl
+import argparse
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--dataset_path", type=str, default="genea2023_dataset")
+    args = parser.parse_args()
+    data_dir = args.dataset_path
+
     parser = BVHParser()
-    data_dir = "/genea2023_dataset"
     parsed_example = parser.parse(os.path.join(data_dir, "trn/main-agent/bvh/trn_2023_v0_000_main-agent.bvh"))
 
     mexp_full = Pipeline([
