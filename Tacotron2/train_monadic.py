@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from common.model import Tacotron2
 from common.logger import Tacotron2Logger
-from common.hparams import create_hparams
+from common.hparams_monadic import create_hparams
 from torch.utils.data import DataLoader
 from common.loss_function import Tacotron2Loss
 
