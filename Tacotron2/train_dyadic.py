@@ -236,7 +236,7 @@ def prepare_dataloaders(hparams):
     print("Loading dataset into memory ...")
     dataset = SpeechGestureDataset_Dyadic(
                     "../trn_main-agent_v0.h5", "../trn_interloctr_v0.h5",
-                    "../val_main-agent_v0.h5", "../val_interloctr_v0.h5",
+                    None, None,
                     motion_dim=hparams.n_acoustic_feat_dims)
     
     val_dataset = SpeechGestureDataset_Dyadic_ValSequence(
