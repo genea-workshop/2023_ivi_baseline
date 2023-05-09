@@ -12,7 +12,7 @@ import torch
 from pymo.viz_tools import *
 from pymo.writers import *
 from common.model import Tacotron2
-from common.hparams import create_hparams
+from common.hparams_monadic import create_hparams
 
 from scipy.signal import savgol_filter
 
