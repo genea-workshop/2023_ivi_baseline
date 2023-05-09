@@ -18,7 +18,7 @@ from scipy.signal import savgol_filter
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-f', "--h5file", type=str, default="../val_main-agent_v1.h5")
+parser.add_argument('-f', "--h5file", type=str, default="../val_main-agent_v0.h5")
 parser.add_argument('-ch', "--checkpoint_path", type=str, required=True)
 parser.add_argument('-o', "--output_dir", type=str, default="outputs")
 parser.add_argument('-t', "--track", type=str, default="full", help="The track for the bvh files. Can only be either 'full' or 'upper'")
