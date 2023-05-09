@@ -146,6 +146,9 @@ Tacotron2/upperbody*/
 Tacotron2/outputs/
 Tacotron2/dyadic/
 Tacotron2/dyadic*/
+Tacotron2/monadic/
+Tacotron2/monadic*/
+resource/
 
 GENEA_visualizer-minimal-v1/
 vid/
