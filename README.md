@@ -45,10 +45,10 @@ python process_data.py -d <path_to_dataset>
 ```
 
 The above script generates the following four h5 files under the project directory:
-* `trn_interloctr_v1.h5`
-* `trn_main-agent_v1.h5`
-* `val_interloctr_v1.h5`
-* `val_main-agent_v1.h5`
+* `trn_interloctr_v0.h5`
+* `trn_main-agent_v0.h5`
+* `val_interloctr_v0.h5`
+* `val_main-agent_v0.h5`
 ---
 Calculate audio statistics based on the training set:
 ```
