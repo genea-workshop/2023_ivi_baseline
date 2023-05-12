@@ -58,7 +58,7 @@ python calculate_audio_statistics.py
 ### Create Motion Processing Pipelines
 We will use the following command to generate pipelines (*.sav) for converting our motion representations to euler rotations.
 ```
-python create_pipeline.py -d <path_to_dataset> 
+python create_pipeline.py
 ```
 
 

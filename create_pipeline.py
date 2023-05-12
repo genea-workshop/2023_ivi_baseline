@@ -10,13 +10,13 @@ import argparse
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--dataset_path", type=str, default="genea2023_dataset")
-    args = parser.parse_args()
-    data_dir = args.dataset_path
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("-d", "--dataset_path", type=str, default="genea2023_dataset")
+    # args = parser.parse_args()
+    # data_dir = args.dataset_path
 
     parser = BVHParser()
-    parsed_example = parser.parse(os.path.join(data_dir, "trn/main-agent/bvh/trn_2023_v0_000_main-agent.bvh"))
+    parsed_example = parser.parse("trn_2022_v1_292.bvh")
 
     mexp_full = Pipeline([
         ('jtsel', JointSelector(["b_root", "b_spine0", "b_spine1", "b_spine2", "b_spine3", "b_neck0", "b_head", "b_r_shoulder",
