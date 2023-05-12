@@ -63,8 +63,8 @@ h5 = h5py.File(args.h5file, "r")
 for index in tqdm(range(len(h5.keys()))):
 	### Load input
 	mel = torch.FloatTensor((h5[str(index)]["audio"]["melspectrogram"][:] - mel_mean) / mel_std)
-	mfcc = torch.FloatTensor(h5[str(index)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std)
-	prosody = torch.FloatTensor(h5[str(index)]["audio"]["prosody"][:] - prosody_mean) / prosody_std)
+	mfcc = torch.FloatTensor((h5[str(index)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std)
+	prosody = torch.FloatTensor((h5[str(index)]["audio"]["prosody"][:] - prosody_mean) / prosody_std)
 	text = torch.FloatTensor(h5[str(index)]["text"][:])
 	speaker = torch.zeros([mel.shape[0], 17])
 	speaker[:, h5[str(index)]["speaker_id"][:]] = 1
@@ -73,8 +73,8 @@ for index in tqdm(range(len(h5.keys()))):
 
 	### Interlocutor
 	mel_interlocutor = torch.FloatTensor((h5_interlocutor[str(index)]["audio"]["melspectrogram"][:] - mel_mean) / mel_std)
-	mfcc_interlocutor = torch.FloatTensor(h5_interlocutor[str(index)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std)
-	prosody_interlocutor = torch.FloatTensor(h5_interlocutor[str(index)]["audio"]["prosody"][:] - prosody_mean) / prosody_std)
+	mfcc_interlocutor = torch.FloatTensor((h5_interlocutor[str(index)]["audio"]["mfcc"][:] - mfcc_mean) / mfcc_std)
+	prosody_interlocutor = torch.FloatTensor((h5_interlocutor[str(index)]["audio"]["prosody"][:] - prosody_mean) / prosody_std)
 	text_interlocutor = torch.FloatTensor(h5_interlocutor[str(index)]["text"][:])
 	speaker_interlocutor = torch.zeros([mel_interlocutor.shape[0], 17])
 	speaker_interlocutor[:, h5_interlocutor[str(index)]["speaker_id"][:]] = 1
