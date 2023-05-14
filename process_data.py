@@ -244,7 +244,7 @@ def prepare_h5_unclipped(dataroot, h5file, participant, word2vector):
     return
 
 
-def prepare_h5_unclipped_test(metadata, h5file="tst_v0.h5", word2vector):
+def prepare_h5_unclipped_test(metadata, word2vector, h5file="tst_v0.h5"):
     num_speakers, metadict_byfname, metadict_byindex = load_metadata(metadata)
     filenames = sorted(metadict_byfname.keys())
 
@@ -336,4 +336,4 @@ if __name__ == "__main__":
 
     # dataset_type = "tst"
     # dataroot = os.path.join(args.dataset_path, dataset_type)
-    # prepare_h5_unclipped_test(dataroot, f"{dataset_type}_interloctr_v0.h5", "interloctr", word2vector)
+    # prepare_h5_unclipped_test(dataroot, f"{dataset_type}_interloctr_v0.h5", word2vector, "interloctr")
