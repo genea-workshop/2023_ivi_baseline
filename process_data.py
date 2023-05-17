@@ -244,9 +244,8 @@ def prepare_h5_unclipped(dataroot, h5file, participant, word2vector):
     return
 
 
-def prepare_h5_unclipped_test(metadata, h5file="tst_v0.h5"):
+def prepare_h5_unclipped_test(metadata, word2vector, h5file="tst_v0.h5"):
     num_speakers, metadict_byfname, metadict_byindex = load_metadata(metadata)
-    word2vector = load_wordvectors(fname="crawl-300d-2M.vec")
     filenames = sorted(metadict_byfname.keys())
 
     with h5py.File(h5file, "w") as h5:
@@ -316,9 +315,10 @@ def prepare_h5_unclipped_test(metadata, h5file="tst_v0.h5"):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--dataset_path", type=str, default="genea2023_dataset")
+    parser.add_argument("-w", "--word_emb_path", type=str, default="crawl-300d-2M.vec")
     args = parser.parse_args()
 
-    word2vector = load_wordvectors(fname="crawl-300d-2M.vec")
+    word2vector = load_wordvectors(fname=args.word_emb_path)
 
     dataset_type = "trn"
     dataroot = os.path.join(args.dataset_path, dataset_type)
@@ -336,4 +336,4 @@ if __name__ == "__main__":
 
     # dataset_type = "tst"
     # dataroot = os.path.join(args.dataset_path, dataset_type)
-    # prepare_h5_unclipped_test(dataroot, f"{dataset_type}_interloctr_v0.h5", "interloctr", word2vector)
+    # prepare_h5_unclipped_test(dataroot, f"{dataset_type}_interloctr_v0.h5", word2vector, "interloctr")
