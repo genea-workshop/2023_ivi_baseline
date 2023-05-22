@@ -61,6 +61,8 @@ We will use the following command to generate pipelines (*.sav) for converting o
 python create_pipeline.py
 ```
 
+Remark: please be aware that this baseline uses a limited set of joints for motion generation, while the challenge requires all the joints. This baseline generates static poses for the excluded joints (see JointSelector implemention).
+
 
 ## Train the Model
 We provide two baseline configurations: a monadic system (generating gestures from the agent's own speech only), and a dyadic system (which is also conditioned on the interlocutor's behaviour).
